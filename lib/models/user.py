@@ -3,12 +3,13 @@ from models.__init__ import CURSOR, CONN
 class User:
     all = {}
 
-    def __init__(self, name, id=None):
+    def __init__(self, name,password, id=None):
         self.id = id
         self.name = name
+        self.password = password
 
     def __repr__(self):
-        return f"User: {self.name}"
+        return f"User: {self.name} Password: {self.password}"
 
     @property
     def name(self):
@@ -21,12 +22,24 @@ class User:
         else:
             raise ValueError("Name must be a string and between 1 and 15 characters")
 
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, password):
+        if isinstance(password, int) and  len(password) == 6:
+            self._password = password
+        else:
+            raise ValueError("Password must be a 6 digit code")
+
     @classmethod
     def create_table(cls):
         sql = """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
-                name TEXT
+                name TEXT,
+                password INTEGER
             )
         """
         CURSOR.execute(sql)
@@ -42,28 +55,28 @@ class User:
 
     def save(self):
         sql = """
-            INSERT INTO users (name)
-            VALUES (?)
+            INSERT INTO users (name, password)
+            VALUES (?, ?)
         """
-        CURSOR.execute(sql, (self.name,))
+        CURSOR.execute(sql, (self.name,self.password,))
         CONN.commit()
 
         self.id = CURSOR.lastrowid
         type(self).all[self.id] = self
 
     @classmethod
-    def create(cls, name):
-        user = cls(name)
+    def create(cls, name, password):
+        user = cls(name, password)
         user.save()
         return user
 
     def update(self):
         sql = """
             UPDATE users
-            SET name = ?
+            SET name = ?, password = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.name, self.id))
+        CURSOR.execute(sql, (self.name, self.password, self.id))
         CONN.commit()
     
     def delete(self):
@@ -74,11 +87,15 @@ class User:
         CURSOR.execute(sql, (self.id))
         CONN.commit()
 
+        del type(self).all[self.id]
+        self.id = None
+
     @classmethod
     def instance_by_db(cls, row):
         user = cls.all.get(row[0])
         if user:
             user.name = row[1]
+            user.password = row[2]
         else:
             user = cls(row[1],row[2])
             user.id = row[0]
@@ -113,6 +130,18 @@ class User:
         """
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_by_db(row) if row else None
+
+    def books(self):
+        from book import Book
+        sql = """
+            SELECT * FROM books
+            WHERE user_id = ?
+        """
+        CURSOR.execute(sql, (self.id,),)
+        rows = CURSOR.fetchall()
+        return [
+            Book.instance_by_db(row) for row in rows
+        ]
     
 
 
