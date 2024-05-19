@@ -1,28 +1,27 @@
 from models.__init__ import CURSOR, CONN
 
 class Genre:
+    all = {}
 
-all = {}
+    def __init__(self, genre, id=None):
+        self.id = id
+        self.genre = genre
 
-def __init__(self, genre, id=None):
-    self.id = id
-    self.genre = genre
+    def __repr__(self):
+        return f'Genre: {self.genre}'
 
-def __repr__(self):
-    return f'Genre: {self.genre}'
+    @property
+    def genre(self):
+        return self._genre
 
-@property
-def genre(self):
-    self._genre = genre
+    @genre.setter
+    def genre(self, genre):
+        if isinstance(genre, str) and 1<= len(genre) <=10:
+            self._genre = genre
+        else:
+            raise ValueError("Genre must be a string and between 1 and 10 characters")
 
-@genre.setter
-def genre(self, genre):
-    if isinstance(genre, str) and 1<= len(genre) <=10:
-        self._genre = genre
-    else:
-        raise ValueError("Genre must be a string and between 1 and 10 characters")
-
-@classmethod
+    @classmethod
     def create_table(cls):
         sql = """
             CREATE TABLE IF NOT EXISTS genres (
@@ -80,7 +79,7 @@ def genre(self, genre):
 
     @classmethod
     def instance_by_db(cls, row):
-        user = cls.all.get(row[0])
+        genre = cls.all.get(row[0])
         if genre:
             genre.genre = row[1]
         else:

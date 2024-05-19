@@ -3,7 +3,7 @@ from models.__init__ import CURSOR, CONN
 class User:
     all = {}
 
-    def __init__(self, name,password, id=None):
+    def __init__(self, name, password, id=None):
         self.id = id
         self.name = name
         self.password = password
@@ -28,10 +28,10 @@ class User:
 
     @password.setter
     def password(self, password):
-        if isinstance(password, int) and  len(password) == 6:
+        if isinstance(password, int):
             self._password = password
         else:
-            raise ValueError("Password must be a 6 digit code")
+            raise ValueError("Password must a numbers")
 
     @classmethod
     def create_table(cls):
