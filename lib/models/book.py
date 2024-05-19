@@ -14,7 +14,7 @@ from models.genre import Genre
 def __repr__(self):
     return (
         f'Book: {self.name}, {self.author}, {self.page_count}' +
-        f'Genre: {self.genre}'
+        f'Genre: {Genre.genre}'
     )
 @property
 def name(self):
@@ -189,4 +189,3 @@ def find_by_author(cls, author):
     """
     row = CURSOR.execute(sql, (author,)).fetchone()
     return cls.instance_by_db(row) if row else None
-    
