@@ -1,29 +1,28 @@
 import re
 from models.__init__ import CURSOR, CONN
-from models.user import User
 from models.genre import Genre
 
 class Book:
     all = {}
-    def __init__(self, name, author, page_count, user_id, genre_id, id=None):
+    def __init__(self, name, author, page_count, genre_id, id=None):
         self.id = id
         self.name = name
         self.author = author
         self.page_count = page_count
-        self.user_id = user_id
         self.genre_id = genre_id
-    def __repr__(self):
-        return (
-            f'Book: {self.name}, {self.author}, {self.page_count}' +
-            f'Genre: {Genre.genre}'
-            )
+
+    # def __repr__(self):
+    #     return (
+    #         f'Book: {self.name}, {self.author}, {self.page_count}' +
+    #         f'Genre: {Genre.genre}'
+    #         )
     @property
     def name(self):
         return self._name
 
     @name.setter
     def name(self,name):
-        pattern = r'^[a-zA-Z0-9\s]+$'
+        pattern = r'^[a-zA-Z0-9\s,]+$'
         if re.match(pattern, name):
             self._name = name
         else:
@@ -52,16 +51,6 @@ class Book:
         else:
             raise ValueError("Page count must be a number")
 
-    @property
-    def user_id(self):
-        return self._user_id
-
-    @user_id.setter
-    def user_id(self, user_id):
-        if type(user_id) is int and User.find_by_id(user_id):
-            self._user_id = user_id
-        else:
-            raise ValueError("Must be user reference")
 
     @property
     def genre_id(self):
@@ -83,7 +72,6 @@ class Book:
                 name TEXT,
                 author VARCHAR(100),
                 page_count INTEGER,
-                user_id INTEGER,
                 genre_id INTEGER
             )
         """
@@ -100,29 +88,28 @@ class Book:
 
     def save(self):
         sql = """
-           INSERT INTO books (name, author, page_count, user_id, genre_id)
-           VALUES (?, ?, ?, ?, ?)
+           INSERT INTO books (name, author, page_count, genre_id)
+           VALUES (?, ?, ?, ?)
         """
-        CURSOR.execute(sql, (self.name,self.author,self.page_count,self.user_id, self.genre_id,))
+        CURSOR.execute(sql, (self.name,self.author,self.page_count, self.genre_id,))
         CONN.commit()
 
         self.id = CURSOR.lastrowid
         type(self).all[self.id] = self
 
     @classmethod
-    def create(cls, name, author, page_count, user_id, genre_id):
-        user = cls(name,author, page_count, user_id, genre_id )
-        user.save()
-        return user
+    def create(cls, name, author, page_count, genre_id):
+        book = cls(name,author, page_count, genre_id )
+        book.save()
+        return book
 
     def update(self):
         sql = """
             UPDATE books
-            SET name = ?, author = ?, page_count = ?,
-            user_id = ?, genre_id = ?
+            SET name = ?, author = ?, page_count = ?, genre_id = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.name, self.author,self.page_count,self.user_id, self.genre_id, self.id))
+        CURSOR.execute(sql, (self.name, self.author,self.page_count, self.genre_id, self.id))
         CONN.commit()
 
     def delete(self):
@@ -144,10 +131,9 @@ class Book:
             book.author = row[2]
             book.author = row[3]
             book.page_count = row[4]
-            book.user_id = row[5]
-            book.genre_id = row[6]
+            book.genre_id = row[5]
         else:
-            book = cls(row[1],row[2], row[3], row[4], row[5], row[6])
+            book = cls(row[1],row[2], row[3], row[4], row[5])
             book.id = row[0]
             cls.all[book.id] = book
         return book
@@ -156,7 +142,7 @@ class Book:
     def get_all(cls):
         sql = """
             SELECT *
-            FROM boo
+            FROM books
         """
         rows = CURSOR.execute(sql).fetchall()
         return [cls.instance_by_db(row) for row in rows]
