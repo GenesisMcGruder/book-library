@@ -16,7 +16,7 @@ class Genre:
 
     @name.setter
     def name(self, name):
-        if isinstance(name, str) and 1<= len(name) <=10:
+        if isinstance(name, str) and 1<= len(name) <=15:
             self._name = name
         else:
             raise ValueError("Genre must be a string and between 1 and 10 characters")
@@ -57,25 +57,28 @@ class Genre:
         genre.save()
         return genre
 
-    def update(self):
-        sql = """
-            UPDATE genres
-            SET name = ?
-            WHERE id = ?
-        """
-        CURSOR.execute(sql, (self.name, self.id))
-        CONN.commit()
+    # def update(self):
+    #     sql = """
+    #         UPDATE genres
+    #         SET name = ?
+    #         WHERE id = ?
+    #     """
+    #     CURSOR.execute(sql, (self.name, self.id))
+    #     CONN.commit()
     
-    def delete(self):
+    @classmethod
+    def delete(cls, genre):
         sql = """
             DELETE FROM genres
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.id))
+        CURSOR.execute(sql, (genre,))
         CONN.commit()
 
-        del type(self).all[self.id]
-        self.id = None
+        del cls.all[genre]
+
+        # del type(self).all[self.id]
+        # self.id = None
 
     @classmethod
     def instance_by_db(cls, row):
@@ -110,12 +113,12 @@ class Genre:
     @classmethod
     def find_by_name(cls,name):
         sql = """
-            SELECT *
+            SELECT id
             FROM genres
             WHERE name = ?
         """
         row = CURSOR.execute(sql, (name,)).fetchone()
-        return cls.instance_by_db(row) if row else None
+        return row[0] if row else None
 
     def books(self):
         from models.book import Book

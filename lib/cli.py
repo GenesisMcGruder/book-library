@@ -1,112 +1,100 @@
+from models.genre import Genre
 from helpers import (
     quit,
     list_genres,
     list_books,
-)
-# this the genres loop
-#welcome
+    add_book,
+    add_genre,
+    delete_book,
+    delete_genre,
+    selected_genre_books,
+    selected_book_info
+) 
+
+
+
+def main_menu():
+    print("**Welcome**")
+    print("Genres")
+    print("Choose from the following options then hit enter:")
+    list_genres()
+    print("G. Add a Genre")
+    print("D. Delete a Genre")
+    print("A. All Books")
+    print("B. Add a Book")
+    print("Q. Quit")
+
 
 def main():
-    choice = 0
-    while choice !=8:
-         print("**Welcome**")
-         print("Generes:")
-         list_genres()
-         print("5. Add a Genre")
-         print("6. Delete a Genre")
-         print("7. All Books")
-         print("8. Quit")
-         print("Please choose from the above options:")
-         choice = int(input())
+    menu_options = ['G', 'D','A', 'Q']
+    genres = Genre.get_all()
 
-    if choice == 1:
-        list_books()
-    elif choice == 2:
-        pass
-    elif choice == 3:
-        pass
-    elif choice == 4:
-        pass
-    elif choice == 5:
-        pass
-    elif choice == 6:
-        pass
-    elif choice == 7:
-        pass
-    elif choice == 8:
-        quit()
+    while True:
+        main_menu()
+        choice = input().upper()
 
+        if choice == 'Q':
+            quit()
+        elif choice == 'G':
+            add_genre()
+        elif choice == 'D':
+            delete_genre()
+        elif choice == 'A':
+            list_books()
+        elif choice == 'B':
+            add_book()
+        elif choice.isdigit() and int(choice) <= len(genres):
+            genre_index = int(choice) -1
+            selected_genre = genres[genre_index]
+            genre_book_menu(genres, genre_index, main) 
+        else:
+            print("Invalid choice. Please try again")   
+
+
+def genre_book_menu(genres, genre_index, main):
+    selected_genre = genres[genre_index]
+    books = selected_genre.books()
+    print(f'**{selected_genre.name}**')
+    selected_genre_books(selected_genre)
+    print("D. Delete a Book")
+    print("B. Back")
+    print("Q. Quit")
+
+    menu_options = ['D','Q', 'B']
+
+    while True:
+        choice = input().upper()
+        if choice == 'Q':
+            quit()
+        elif choice == 'D':
+            delete_book()
+        elif choice == "B":
+            return main()
+        elif choice.isdigit() and int(choice) <= len(books):
+            book_index = int(choice) -1
+            book_info_menu(books,book_index, genres, genre_index)
+        else:   
+            print("Invalid choice. Please try again.")
+
+def book_info_menu(books, book_index, genres, genre_index):
+    selected_book = books[book_index]
+    print(f'**{selected_book.name}**')
+    selected_book_info(selected_book)
+    print("D. Delete Book")
+    print("B. Back")
+
+    menu_options = ['D','B']
+
+    while True:
+        choice = input().upper()
+        if choice == 'D':
+            delete_book()
+            exit_menu = True
+        elif choice == 'B':
+            return genre_book_menu(genres, genre_index, main)
+        else:
+            print("Invalid choice. Please try again")
 
 if __name__ == "__main__":
     main()
-
-
-# def genres_loop():
-#     #list the genres in DB , recieve back a list of all the genre
-    
-#     while True:
-#         # call menu_1
-
-#         choice = input(">")
-#         if choice == "L":
-#             logout()
-#         else if  choice == "1":
-#             menu_2()
-
-#         elif #pick see details
-#         #let user pick genre
-#         #call genre_books_loop pass it the object they  pick
-
-
-
-# # genre books loop
-
-# def genre_books_loop():
-#      while True:
-#         # call menu_2
-
-#         choice = input(">")
-#         if choice == "L":
-#             logout()
-#         else if  choice == "1":
-#             pass
-#         #else if choice == go back:
-#             # genres_loop()
-        
-# def logout():
-#     exit()
-
-# def menu_1():
-#     # print("1. Users")
-#     # print("2. Books")
-#     # print("3. Genres")
-#     print("list genres")
-#     print("add genre")
-#     print("delete genre") #delete genre books too
-#     print("update genre")
-#     print("pick to see details")
-
-#     # print("4. Account")
-#     print("L. Logout")
-
-# def menu_2():
-#     #list each genres book
-#     #add
-#     #delete
-#     #back option
-#     print("1. All Users")
-#     print("2. Search Users")
-#     print("L. Logout")
-
-
-# def welcome():
-#     print("Welcome!")
-
-# def login():
-#     print("Login:")
-
-# def create_account():
-#     print("Username not found, would you like to sign up? [y/n]")
-    
-
 

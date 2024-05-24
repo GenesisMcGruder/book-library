@@ -103,14 +103,14 @@ class Book:
         book.save()
         return book
 
-    def update(self):
-        sql = """
-            UPDATE books
-            SET name = ?, author = ?, page_count = ?, genre_id = ?
-            WHERE id = ?
-        """
-        CURSOR.execute(sql, (self.name, self.author,self.page_count, self.genre_id, self.id))
-        CONN.commit()
+    # def update(self):
+    #     sql = """
+    #         UPDATE books
+    #         SET name = ?, author = ?, page_count = ?, genre_id = ?
+    #         WHERE id = ?
+    #     """
+    #     CURSOR.execute(sql, (self.name, self.author,self.page_count, self.genre_id, self.id))
+    #     CONN.commit()
 
     def delete(self):
         sql = """
@@ -129,11 +129,10 @@ class Book:
         if book:
             book.name = row[1]
             book.author = row[2]
-            book.author = row[3]
-            book.page_count = row[4]
-            book.genre_id = row[5]
+            book.page_count = row[3]
+            book.genre_id = row[4]
         else:
-            book = cls(row[1],row[2], row[3], row[4], row[5])
+            book = cls(row[1],row[2], row[3], row[4])
             book.id = row[0]
             cls.all[book.id] = book
         return book
