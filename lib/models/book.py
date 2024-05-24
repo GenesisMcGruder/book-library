@@ -112,16 +112,16 @@ class Book:
     #     CURSOR.execute(sql, (self.name, self.author,self.page_count, self.genre_id, self.id))
     #     CONN.commit()
 
-    def delete(self):
+    @classmethod
+    def delete(cls, book):
         sql = """
             DELETE FROM books
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.id))
+        CURSOR.execute(sql, (book.id,))
         CONN.commit()
 
-        del type(self).all[self.id]
-        self.id = None
+        del cls.all[book.id]
 
     @classmethod
     def instance_by_db(cls, row):

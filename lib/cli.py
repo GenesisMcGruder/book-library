@@ -68,6 +68,7 @@ def genre_book_menu(genres, genre_index, main):
             quit()
         elif choice == 'D':
             delete_book()
+            return genre_book_menu(genres, genre_index, main)
         elif choice == "B":
             return main()
         elif choice.isdigit() and int(choice) <= len(books):
@@ -80,17 +81,13 @@ def book_info_menu(books, book_index, genres, genre_index):
     selected_book = books[book_index]
     print(f'**{selected_book.name}**')
     selected_book_info(selected_book)
-    print("D. Delete Book")
     print("B. Back")
 
     menu_options = ['D','B']
 
     while True:
         choice = input().upper()
-        if choice == 'D':
-            delete_book()
-            exit_menu = True
-        elif choice == 'B':
+        if choice == 'B':
             return genre_book_menu(genres, genre_index, main)
         else:
             print("Invalid choice. Please try again")

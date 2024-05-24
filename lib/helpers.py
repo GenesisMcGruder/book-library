@@ -61,10 +61,11 @@ def delete_genre():
 
 def delete_book():
     name = input("Enter book name to be deleted: ")
-    if book == Book.find_by_name(name):
-        book.delete()
+    book = Book.find_by_name(name)
+    if book is not None:
+        book.delete(book)
         print(f'Book {name} has been deleted successfully')
     else:
-        print(f'Boof {name} has not been found')
+        print(f'Book {name} has not been found')
 
 
